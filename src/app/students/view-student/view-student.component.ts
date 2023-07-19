@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { StudentService } from '../student.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Student } from 'src/app/models/ui-models/student.model';
 import { GenderService } from 'src/app/services/gender.service';
 import { Gender } from 'src/app/models/ui-models/gender.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-view-student',
@@ -42,6 +43,7 @@ export class ViewStudentComponent implements OnInit {
   header = '';
   displayProfileImageUrl = '';
   genderList: Gender[]=[];
+  @ViewChild('studentDetailForm') studentDetailForm? : NgForm;
 
   constructor(private readonly studentService: StudentService,
      private readonly route:ActivatedRoute,
@@ -81,7 +83,7 @@ export class ViewStudentComponent implements OnInit {
         );
 
 
-          //existing studnet
+          //existing student
         }
 
         
@@ -100,18 +102,21 @@ export class ViewStudentComponent implements OnInit {
   }
 
   onUpdate():void { 
-    this.studentService.updateStudent(this.student.id,this.student)
-    .subscribe(
-      (successResponse)=>{ 
-        //show notif
-        this.snackbar.open('Update Successful', undefined,{duration:2000});
-      },
-      (errorResponse)=>{
-        //log it 
-      }
-     
-      
-      );
+    if(this.studentDetailForm?.form.valid){
+      this.studentService.updateStudent(this.student.id,this.student)
+      .subscribe(
+        (successResponse)=>{ 
+          //show notifications
+          this.snackbar.open('Update Successful', undefined,{duration:2000});
+        },
+        (errorResponse)=>{
+          //log it 
+          console.log(errorResponse);  
+        }
+       
+        
+        );}
+    
   }
 
   onDelete():void{
@@ -131,7 +136,8 @@ export class ViewStudentComponent implements OnInit {
   }
 
   onAdd(): void {
-    this.studentService.addStudent(this.student)
+    if(this.studentDetailForm?.form.valid){
+      this.studentService.addStudent(this.student)
     .subscribe
     (
       (successResponse)=>
@@ -147,6 +153,11 @@ export class ViewStudentComponent implements OnInit {
       }
 
     );
+    }
+
+
+
+    
   }
 
   private setImage(): void {
